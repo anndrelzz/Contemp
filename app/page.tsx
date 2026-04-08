@@ -1,65 +1,132 @@
-import Image from "next/image";
+"use client";
+
+export const dynamic = "force-dynamic";
+
+import { useStore } from "@/store/useStore";
+import { UploadArea } from "@/components/UploadArea";
+import { CartaTable } from "@/components/CartaTable";
+import { ResumoPanel } from "@/components/ResumoPanel";
+import { BancoFixoLoader } from "@/components/BancoFixoLoader";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loader2, LayoutDashboard } from "lucide-react";
 
 export default function Home() {
+  const { estoqueDia, bancoFixo, isLoadingBancoFixo } = useStore();
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <>
+      <BancoFixoLoader />
+      <div className="min-h-screen flex flex-col bg-[#09090b]">
+
+        {/* Header */}
+        <header className="sticky top-0 z-50 flex items-center justify-between px-6 py-3 bg-black/80 backdrop-blur border-b border-white/5">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-8 h-8 rounded bg-red-700">
+              <LayoutDashboard size={16} className="text-white" />
+            </div>
+            <div>
+              <span className="text-white font-bold text-base tracking-wide">ADEMICON</span>
+              <span className="ml-2 text-xs text-zinc-500 uppercase tracking-widest">Consórcio</span>
+            </div>
+          </div>
+          <div className="hidden md:flex items-center gap-2 text-xs text-zinc-600 border border-zinc-800 rounded-full px-3 py-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+            Sistema Operacional
+          </div>
+        </header>
+
+        {/* Page title */}
+        <div className="px-6 pt-6 pb-4 border-b border-white/5">
+          <h1 className="text-xl font-semibold text-white">
+            Gerador de Orçamentos
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-sm text-zinc-500 mt-0.5">
+            Cartas de consórcio contempladas — Uso interno
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="flex flex-col gap-5 p-6 flex-1">
+
+          {/* Upload */}
+          <UploadArea />
+
+          {/* Two-column layout */}
+          <div className="grid grid-cols-1 xl:grid-cols-[1fr_420px] gap-5 items-start">
+
+            {/* Left: Tables */}
+            <div className="rounded-xl border border-white/5 bg-[#111113] overflow-hidden">
+              <Tabs defaultValue="dia">
+                <div className="border-b border-white/5 px-4 pt-3 pb-0 flex items-center justify-between">
+                  <TabsList className="bg-transparent p-0 gap-1 h-auto">
+                    <TabsTrigger
+                      value="dia"
+                      className="
+                        relative px-4 py-2.5 text-sm font-medium text-zinc-500 rounded-none bg-transparent
+                        data-[state=active]:text-white data-[state=active]:bg-transparent
+                        data-[state=active]:shadow-none
+                        after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5
+                        after:bg-transparent data-[state=active]:after:bg-red-600
+                        hover:text-zinc-300 transition-colors
+                      "
+                    >
+                      Estoque do Dia
+                      <span className="ml-2 text-xs bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded-full">
+                        {estoqueDia.length}
+                      </span>
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="fixo"
+                      className="
+                        relative px-4 py-2.5 text-sm font-medium text-zinc-500 rounded-none bg-transparent
+                        data-[state=active]:text-white data-[state=active]:bg-transparent
+                        data-[state=active]:shadow-none
+                        after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5
+                        after:bg-transparent data-[state=active]:after:bg-red-600
+                        hover:text-zinc-300 transition-colors
+                      "
+                    >
+                      Banco Fixo
+                      {isLoadingBancoFixo ? (
+                        <Loader2 size={11} className="ml-2 animate-spin text-zinc-500" />
+                      ) : (
+                        <span className="ml-2 text-xs bg-red-950 text-red-400 px-1.5 py-0.5 rounded-full">
+                          {bancoFixo.length}
+                        </span>
+                      )}
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+
+                <TabsContent value="dia" className="p-0 m-0">
+                  <CartaTable cartas={estoqueDia} mode="dia" />
+                </TabsContent>
+
+                <TabsContent value="fixo" className="p-0 m-0">
+                  {isLoadingBancoFixo ? (
+                    <div className="flex justify-center items-center py-16">
+                      <Loader2 size={28} className="animate-spin text-red-600" />
+                    </div>
+                  ) : (
+                    <CartaTable cartas={bancoFixo} mode="fixo" />
+                  )}
+                </TabsContent>
+              </Tabs>
+            </div>
+
+            {/* Right: Summary */}
+            <div className="sticky top-[65px]">
+              <ResumoPanel />
+            </div>
+
+          </div>
         </div>
-      </main>
-    </div>
+
+        {/* Footer */}
+        <footer className="mt-auto px-6 py-3 border-t border-white/5 flex items-center justify-between text-xs text-zinc-700">
+          <span>Ademicon — Sistema Interno</span>
+          <span>anderson.marini@licenciadoademicon.com.br</span>
+        </footer>
+      </div>
+    </>
   );
 }
