@@ -1,4 +1,4 @@
-import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient, Session } from "@supabase/supabase-js";
 import { Carta } from "@/types";
 
 let _client: SupabaseClient | null = null;
@@ -14,6 +14,25 @@ function getClient(): SupabaseClient {
   }
   _client = createClient(url, key);
   return _client;
+}
+
+// Auth
+export async function signIn(email: string, password: string) {
+  const { data, error } = await getClient().auth.signInWithPassword({ email, password });
+  return { data, error };
+}
+
+export async function signOut() {
+  await getClient().auth.signOut();
+}
+
+export async function getSession(): Promise<Session | null> {
+  const { data } = await getClient().auth.getSession();
+  return data.session;
+}
+
+export function onAuthStateChange(callback: (session: Session | null) => void) {
+  return getClient().auth.onAuthStateChange((_event, session) => callback(session));
 }
 
 const TABLE = "cartas_salvas";

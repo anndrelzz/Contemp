@@ -28,17 +28,25 @@ export function UploadArea() {
           const rows: CartaRaw[] = XLSX.utils.sheet_to_json(sheet);
 
           const cartas: Carta[] = rows.map((row) => {
-            const credito = parseBRLToFloat(row.Credito);
-            const entrada = parseBRLToFloat(row.Entrada);
-            const parcela = parseBRLToFloat(row.Parcela);
-            const prazo = Number(row.Prazo);
+            const credito = parseBRLToFloat(
+              (row as Record<string, unknown>)["Crédito"] ?? row.Credito
+            );
+            const entrada = parseBRLToFloat(
+              (row as Record<string, unknown>)["Entrada"] ?? row.Entrada
+            );
+            const parcela = parseBRLToFloat(
+              (row as Record<string, unknown>)["Parcela"] ?? row.Parcela
+            );
+            const prazo = Number(
+              (row as Record<string, unknown>)["Prazo"] ?? row.Prazo
+            );
             const dn = credito - entrada;
             const porcentagem_entrada = credito > 0 ? (entrada / credito) * 100 : 0;
             const custo_financeiro = calcularTaxaMensal(prazo, parcela, -dn);
 
             return {
               id: uuidv4(),
-              grupo: Number(row.Grupo),
+              grupo: Number((row as Record<string, unknown>)["Grupo"] ?? row.Grupo),
               credito,
               entrada,
               parcela,

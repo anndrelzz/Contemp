@@ -8,7 +8,9 @@ import { CartaTable } from "@/components/CartaTable";
 import { ResumoPanel } from "@/components/ResumoPanel";
 import { BancoFixoLoader } from "@/components/BancoFixoLoader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, LayoutDashboard } from "lucide-react";
+import { Loader2, LogOut } from "lucide-react";
+import Image from "next/image";
+import { signOut } from "@/lib/supabase";
 
 export default function Home() {
   const { estoqueDia, bancoFixo, isLoadingBancoFixo } = useStore();
@@ -21,17 +23,25 @@ export default function Home() {
         {/* Header */}
         <header className="sticky top-0 z-50 flex items-center justify-between px-6 py-3 bg-black/80 backdrop-blur border-b border-white/5">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-8 h-8 rounded bg-red-700">
-              <LayoutDashboard size={16} className="text-white" />
-            </div>
+            <Image src="/logo.svg" alt="Ademicon" width={32} height={22} />
             <div>
               <span className="text-white font-bold text-base tracking-wide">ADEMICON</span>
               <span className="ml-2 text-xs text-zinc-500 uppercase tracking-widest">Consórcio</span>
             </div>
           </div>
-          <div className="hidden md:flex items-center gap-2 text-xs text-zinc-600 border border-zinc-800 rounded-full px-3 py-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-            Sistema Operacional
+          <div className="flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-2 text-xs text-zinc-600 border border-zinc-800 rounded-full px-3 py-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+              Sistema Operacional
+            </div>
+            <button
+              onClick={() => signOut()}
+              className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 border border-zinc-800 hover:border-zinc-700 rounded-full px-3 py-1 transition-colors"
+              title="Sair"
+            >
+              <LogOut size={12} />
+              Sair
+            </button>
           </div>
         </header>
 

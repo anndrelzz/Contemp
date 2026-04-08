@@ -10,7 +10,7 @@ export function BancoFixoLoader() {
   useEffect(() => {
     setIsLoadingBancoFixo(true);
     fetchCartasSalvas()
-      .then((cartas) => setBancoFixo(cartas))
+      .then((cartas) => setBancoFixo([...cartas].sort((a, b) => a.credito - b.credito)))
       .catch((e) => console.error("Erro ao carregar banco fixo:", e))
       .finally(() => setIsLoadingBancoFixo(false));
   }, [setBancoFixo, setIsLoadingBancoFixo]);
