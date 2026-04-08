@@ -8,8 +8,9 @@ import { CartaTable } from "@/components/CartaTable";
 import { ResumoPanel } from "@/components/ResumoPanel";
 import { BancoFixoLoader } from "@/components/BancoFixoLoader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, LogOut } from "lucide-react";
+import { Loader2, LogOut, TrendingUp } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { signOut } from "@/lib/supabase";
 
 export default function Home() {
@@ -34,6 +35,13 @@ export default function Home() {
               <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
               Sistema Operacional
             </div>
+            <Link
+              href="/simulador"
+              className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white border border-zinc-700 hover:border-zinc-500 rounded-full px-3 py-1 transition-colors"
+            >
+              <TrendingUp size={12} />
+              Simulador de Alavancagem
+            </Link>
             <button
               onClick={() => signOut()}
               className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 border border-zinc-800 hover:border-zinc-700 rounded-full px-3 py-1 transition-colors"
