@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { useStore } from "@/store/useStore";
 import { formatBRL, formatPercent } from "@/utils/finance";
-import { FileText, TrendingUp, Wallet, CreditCard, CheckSquare } from "lucide-react";
+import { FileText, TrendingUp, Wallet, CreditCard, CheckSquare, Percent } from "lucide-react";
 import { gerarPDF } from "@/utils/pdf";
 
 export function ResumoPanel() {
@@ -28,14 +28,19 @@ export function ResumoPanel() {
   );
 
   const totais = useMemo(() => {
-    return selecionadas.reduce(
+    const base = selecionadas.reduce(
       (acc, c) => ({
         credito: acc.credito + c.credito,
         entrada: acc.entrada + c.entrada,
         parcela: acc.parcela + c.parcela,
+        custo_financeiro: acc.custo_financeiro + c.custo_financeiro,
       }),
-      { credito: 0, entrada: 0, parcela: 0 }
+      { credito: 0, entrada: 0, parcela: 0, custo_financeiro: 0 }
     );
+    return {
+      ...base,
+      media_cf: selecionadas.length > 0 ? base.custo_financeiro / selecionadas.length : 0,
+    };
   }, [selecionadas]);
 
   const isEmpty = selecionadas.length === 0;
@@ -62,6 +67,7 @@ export function ResumoPanel() {
             { icon: CreditCard, label: "Crédito Total", value: formatBRL(totais.credito), accent: "text-white" },
             { icon: Wallet, label: "Entrada Total", value: formatBRL(totais.entrada), accent: "text-red-400" },
             { icon: TrendingUp, label: "Parcela Total", value: formatBRL(totais.parcela), accent: "text-zinc-300" },
+            { icon: Percent, label: "Média CF a.m.", value: formatPercent(totais.media_cf), accent: "text-amber-400" },
           ].map(({ icon: Icon, label, value, accent }) => (
             <div key={label} className="flex items-center justify-between px-4 py-3">
               <div className="flex items-center gap-2.5">
