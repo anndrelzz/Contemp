@@ -103,9 +103,9 @@ const styles = StyleSheet.create({
     fontSize: 7,
   },
   footer: {
-    position: "absolute",
-    bottom: 24,
-    right: 30,
+    marginTop: "auto",
+    paddingTop: 24,
+    alignSelf: "flex-end",
     borderLeftWidth: 3,
     borderLeftColor: "#991b1b",
     paddingLeft: 10,
@@ -220,7 +220,7 @@ function OrcamentoPDF({
         ))}
 
         {/* Footer */}
-        <View style={styles.footer} fixed>
+        <View style={styles.footer}>
           <Text style={styles.footerName}>Anderson L. Marini</Text>
           <Text style={styles.footerLine}>Sócio gerente</Text>
           <Text style={styles.footerLine}>
