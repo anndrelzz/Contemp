@@ -74,7 +74,7 @@ export default function SimuladorPage() {
 
   const totalParcela = fases.reduce((acc, f) => acc + f.parcela, 0);
   const totalTaxas = fases.reduce((acc, f) => acc + f.taxa, 0);
-  const liquidoFinal = fases.reduce((acc, f) => acc + f.liquido, 0);
+  const liquidoFinal = fases.length > 0 ? fases[fases.length - 1].liquido : 0;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#09090b]">
