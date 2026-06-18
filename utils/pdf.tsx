@@ -85,14 +85,15 @@ const styles = StyleSheet.create({
   tableRowAlt: {
     backgroundColor: "#18181b",
   },
-  colGrupo: { width: "8%" },
-  colCredito: { width: "16%" },
-  colEntrada: { width: "16%" },
-  colPct: { width: "9%" },
-  colParcela: { width: "16%" },
-  colPrazo: { width: "9%" },
-  colCF: { width: "10%" },
-  colDN: { width: "16%" },
+  colGrupo: { width: "7%" },
+  colCredito: { width: "14%" },
+  colEntrada: { width: "14%" },
+  colPct: { width: "8%" },
+  colParcela: { width: "14%" },
+  colPrazo: { width: "8%" },
+  colCF: { width: "9%" },
+  colDN: { width: "14%" },
+  colSD: { width: "12%" },
   headerText: {
     color: "#ffffff",
     fontSize: 7,
@@ -188,6 +189,7 @@ function OrcamentoPDF({
           <Text style={[styles.headerText, styles.colPrazo]}>Prazo</Text>
           <Text style={[styles.headerText, styles.colCF]}>C.F a.m</Text>
           <Text style={[styles.headerText, styles.colDN]}>DN</Text>
+          <Text style={[styles.headerText, styles.colSD]}>SD</Text>
         </View>
         {cartas.map((carta, i) => (
           <View
@@ -215,6 +217,9 @@ function OrcamentoPDF({
             </Text>
             <Text style={[styles.cellText, styles.colDN]}>
               {formatBRL(carta.dn)}
+            </Text>
+            <Text style={[styles.cellText, styles.colSD]}>
+              {formatBRL(carta.sd)}
             </Text>
           </View>
         ))}
