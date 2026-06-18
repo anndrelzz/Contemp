@@ -66,7 +66,7 @@ export async function fetchCartasSalvas(): Promise<Carta[]> {
 }
 
 export async function insertCartaSalva(
-  carta: Omit<Carta, "id" | "created_at" | "is_fixa">
+  carta: Omit<Carta, "id" | "created_at" | "is_fixa" | "sd">
 ): Promise<Carta> {
   const { data, error } = await getClient()
     .from(TABLE)
