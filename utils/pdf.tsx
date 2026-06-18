@@ -128,6 +128,7 @@ interface Totais {
   credito: number;
   entrada: number;
   parcela: number;
+  sd: number;
   media_cf: number;
 }
 
@@ -171,6 +172,10 @@ function OrcamentoPDF({
           <View style={styles.summaryCard}>
             <Text style={styles.summaryLabel}>Parcela Total</Text>
             <Text style={styles.summaryValue}>{formatBRL(totais.parcela)}</Text>
+          </View>
+          <View style={styles.summaryCard}>
+            <Text style={styles.summaryLabel}>Saldo Devedor Total</Text>
+            <Text style={styles.summaryValue}>{formatBRL(totais.sd)}</Text>
           </View>
           <View style={styles.summaryCard}>
             <Text style={styles.summaryLabel}>Média CF a.m.</Text>

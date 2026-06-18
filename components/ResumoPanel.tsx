@@ -33,9 +33,10 @@ export function ResumoPanel() {
         credito: acc.credito + c.credito,
         entrada: acc.entrada + c.entrada,
         parcela: acc.parcela + c.parcela,
+        sd: acc.sd + c.sd,
         custo_financeiro: acc.custo_financeiro + c.custo_financeiro,
       }),
-      { credito: 0, entrada: 0, parcela: 0, custo_financeiro: 0 }
+      { credito: 0, entrada: 0, parcela: 0, sd: 0, custo_financeiro: 0 }
     );
     return {
       ...base,
