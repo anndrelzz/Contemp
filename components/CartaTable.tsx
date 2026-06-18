@@ -90,7 +90,7 @@ export function CartaTable({ cartas, mode }: Props) {
             <TableHead className="w-10 text-zinc-600 text-xs font-medium uppercase tracking-wide pl-4">
               <span className="sr-only">Selecionar</span>
             </TableHead>
-            {["Grupo", "Crédito", "Entrada", "%", "Parcela", "Prazo", "C.F a.m", "DN"].map((col) => (
+            {["Grupo", "Crédito", "Entrada", "%", "Parcela", "Prazo", "C.F a.m", "DN", "SD"].map((col) => (
               <TableHead key={col} className="text-zinc-500 text-xs font-medium uppercase tracking-wide whitespace-nowrap">
                 {col}
               </TableHead>
@@ -152,6 +152,9 @@ export function CartaTable({ cartas, mode }: Props) {
                 </TableCell>
                 <TableCell className="font-mono text-sm text-red-400 tabular-nums whitespace-nowrap font-medium">
                   {formatBRL(carta.dn)}
+                </TableCell>
+                <TableCell className="font-mono text-sm text-orange-400 tabular-nums whitespace-nowrap font-medium">
+                  {formatBRL(carta.sd)}
                 </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   {isLoading ? (

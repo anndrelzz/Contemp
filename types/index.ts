@@ -14,6 +14,7 @@ export interface Carta {
   parcela: number;
   prazo: number;
   dn: number;
+  sd: number;
   porcentagem_entrada: number;
   custo_financeiro: number;
   created_at?: string;

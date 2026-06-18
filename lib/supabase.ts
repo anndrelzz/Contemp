@@ -45,19 +45,24 @@ export async function fetchCartasSalvas(): Promise<Carta[]> {
 
   if (error) throw error;
 
-  return (data ?? []).map((row) => ({
-    id: row.id,
-    grupo: row.grupo,
-    credito: Number(row.credito),
-    entrada: Number(row.entrada),
-    parcela: Number(row.parcela),
-    prazo: row.prazo,
-    dn: Number(row.dn),
-    porcentagem_entrada: Number(row.porcentagem_entrada),
-    custo_financeiro: Number(row.custo_financeiro),
-    created_at: row.created_at,
-    is_fixa: true,
-  }));
+  return (data ?? []).map((row) => {
+    const parcela = Number(row.parcela);
+    const prazo = row.prazo;
+    return {
+      id: row.id,
+      grupo: row.grupo,
+      credito: Number(row.credito),
+      entrada: Number(row.entrada),
+      parcela,
+      prazo,
+      dn: Number(row.dn),
+      sd: prazo * parcela,
+      porcentagem_entrada: Number(row.porcentagem_entrada),
+      custo_financeiro: Number(row.custo_financeiro),
+      created_at: row.created_at,
+      is_fixa: true,
+    };
+  });
 }
 
 export async function insertCartaSalva(
@@ -71,12 +76,16 @@ export async function insertCartaSalva(
 
   if (error) throw error;
 
+  const parcela = Number(data.parcela);
+  const prazo = data.prazo;
   return {
     ...data,
     credito: Number(data.credito),
     entrada: Number(data.entrada),
-    parcela: Number(data.parcela),
+    parcela,
+    prazo,
     dn: Number(data.dn),
+    sd: prazo * parcela,
     porcentagem_entrada: Number(data.porcentagem_entrada),
     custo_financeiro: Number(data.custo_financeiro),
     is_fixa: true,

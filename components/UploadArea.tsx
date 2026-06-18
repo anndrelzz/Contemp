@@ -33,6 +33,7 @@ export function UploadArea() {
             const parcela = parseBRLToFloat(row["Parcela"]);
             const prazo = Number(row["Prazo"]);
             const dn = credito - entrada;
+            const sd = prazo * parcela;
             const porcentagem_entrada = credito > 0 ? (entrada / credito) * 100 : 0;
             const custo_financeiro = calcularTaxaMensal(prazo, parcela, -dn);
 
@@ -44,6 +45,7 @@ export function UploadArea() {
               parcela,
               prazo,
               dn,
+              sd,
               porcentagem_entrada,
               custo_financeiro,
               is_fixa: false,
