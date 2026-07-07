@@ -236,6 +236,9 @@ function OrcamentoPDF({
           <Text style={styles.footerLine}>
             Unidade Joinville - América | Unidade SP - Jardins
           </Text>
+          <Text style={styles.footerLine}>
+            Unidade Santo Antônio - Joinville | Unidade Botucatu - SP
+          </Text>
           <Text style={styles.footerLine}>(41) 98802-8545</Text>
           <Text style={styles.footerLine}>
             anderson.marini@licenciadoademicon.com.br
