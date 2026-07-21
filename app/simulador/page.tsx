@@ -78,6 +78,17 @@ export default function SimuladorPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#09090b]">
+      <style jsx global>{`
+        @media print {
+          @page {
+            size: A4;
+            margin: 10mm;
+          }
+          html {
+            font-size: 62%;
+          }
+        }
+      `}</style>
       {/* Header */}
       <header className="sticky top-0 z-50 flex items-center justify-between px-6 py-3 bg-black/80 backdrop-blur border-b border-white/5 print:hidden">
         <div className="flex items-center gap-3">
@@ -104,10 +115,10 @@ export default function SimuladorPage() {
         <p className="text-sm text-zinc-500 mt-0.5">Projeto Alavancagem de Crédito — Uso interno</p>
       </div>
 
-      <div className="flex-1 p-6 max-w-4xl w-full mx-auto">
+      <div className="flex-1 p-6 max-w-4xl w-full mx-auto print:p-0">
 
         {/* Print header (only visible on print) */}
-        <div className="hidden print:flex items-center justify-between mb-6 border-b-2 border-red-700 pb-3">
+        <div className="hidden print:flex items-center justify-between mb-2 border-b-2 border-red-700 pb-1">
           <div className="flex items-center gap-3">
             <Image src="/logo.svg" alt="Ademicon" width={36} height={25} className="grayscale brightness-0" />
             <span className="font-bold text-lg text-red-900">ADEMICON</span>
@@ -115,7 +126,7 @@ export default function SimuladorPage() {
           <span className="text-xs text-zinc-500 uppercase tracking-widest">Joinville — Simulação Financeira</span>
         </div>
 
-        <h2 className="hidden print:block text-center text-red-700 font-bold text-2xl uppercase mb-6">
+        <h2 className="hidden print:block text-center text-red-700 font-bold text-2xl uppercase mb-2">
           Projeto Alavancagem de Crédito
         </h2>
 
@@ -151,18 +162,18 @@ export default function SimuladorPage() {
 
         {/* Dashboard */}
         {iniciado && (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 print:gap-2">
 
             {/* Fases */}
             {fases.map((fase, idx) => (
-              <div key={idx} className="rounded-xl border border-white/5 bg-[#111113] p-5 print:border print:border-zinc-300 print:rounded-none print:bg-white">
-                <p className="text-red-500 font-bold text-sm mb-3 print:text-red-700">{fase.numero}ª Fase</p>
+              <div key={idx} className="rounded-xl border border-white/5 bg-[#111113] p-5 print:border print:border-zinc-300 print:rounded-none print:bg-white print:p-2 print:break-inside-avoid">
+                <p className="text-red-500 font-bold text-sm mb-3 print:text-red-700 print:mb-1">{fase.numero}ª Fase</p>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm border-collapse">
                     <thead>
                       <tr className="border-b border-white/10 print:border-black">
                         {["Créditos", "Entrada", "Prazo", "Parcela", "Taxa Transf."].map((h) => (
-                          <th key={h} className="text-left text-xs text-zinc-500 font-semibold uppercase pb-2 pr-4 print:text-red-800 print:border print:border-black print:p-2 print:bg-zinc-100">
+                          <th key={h} className="text-left text-xs text-zinc-500 font-semibold uppercase pb-2 pr-4 print:text-red-800 print:border print:border-black print:p-1 print:bg-zinc-100">
                             {h}
                           </th>
                         ))}
@@ -170,22 +181,22 @@ export default function SimuladorPage() {
                     </thead>
                     <tbody>
                       <tr>
-                        <td className="py-3 pr-4 text-white print:border print:border-black print:p-2 print:font-bold print:text-black">R$ {formatarMoeda(fase.credito)}</td>
-                        <td className="py-3 pr-4 text-white print:border print:border-black print:p-2 print:font-bold print:text-black">R$ {formatarMoeda(fase.entrada)}</td>
-                        <td className="py-3 pr-4 text-white print:border print:border-black print:p-2 print:font-bold print:text-black">{fase.prazo}</td>
-                        <td className="py-3 pr-4 text-white print:border print:border-black print:p-2 print:font-bold print:text-black">R$ {formatarMoeda(fase.parcela)}</td>
-                        <td className="py-3 pr-4 text-white print:border print:border-black print:p-2 print:font-bold print:text-black">R$ {formatarMoeda(fase.taxa)}</td>
+                        <td className="py-3 pr-4 text-white print:border print:border-black print:p-1 print:font-bold print:text-black">R$ {formatarMoeda(fase.credito)}</td>
+                        <td className="py-3 pr-4 text-white print:border print:border-black print:p-1 print:font-bold print:text-black">R$ {formatarMoeda(fase.entrada)}</td>
+                        <td className="py-3 pr-4 text-white print:border print:border-black print:p-1 print:font-bold print:text-black">{fase.prazo}</td>
+                        <td className="py-3 pr-4 text-white print:border print:border-black print:p-1 print:font-bold print:text-black">R$ {formatarMoeda(fase.parcela)}</td>
+                        <td className="py-3 pr-4 text-white print:border print:border-black print:p-1 print:font-bold print:text-black">R$ {formatarMoeda(fase.taxa)}</td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
-                <div className="mt-3">
-                  <p className="text-xs text-zinc-500 mb-1.5 print:text-zinc-600">*Valor líquido para utilizar R$</p>
+                <div className="mt-3 print:mt-1">
+                  <p className="text-xs text-zinc-500 mb-1.5 print:text-zinc-600 print:mb-0.5">*Valor líquido para utilizar R$</p>
                   <input
                     type="text"
                     defaultValue={formatarMoeda(fase.liquido)}
                     onBlur={(e) => atualizarLiquido(idx, e.target.value)}
-                    className="w-full bg-black border border-red-700 rounded-lg px-3 py-2 text-white text-right font-medium text-sm focus:outline-none focus:border-red-500 print:border-black print:bg-zinc-50 print:text-black print:font-bold"
+                    className="w-full bg-black border border-red-700 rounded-lg px-3 py-2 text-white text-right font-medium text-sm focus:outline-none focus:border-red-500 print:border-black print:bg-zinc-50 print:text-black print:font-bold print:py-1"
                   />
                 </div>
               </div>
@@ -218,10 +229,10 @@ export default function SimuladorPage() {
             </div>
 
             {/* Resumo */}
-            <div className="rounded-xl border-2 border-red-900 bg-gradient-to-b from-zinc-900 to-black p-5 print:border print:border-black print:bg-white print:rounded-none">
-              <h3 className="text-red-500 font-bold text-base mb-1 print:text-red-700">RESUMO DA OPERAÇÃO</h3>
-              <p className="text-xs text-zinc-500 mb-4 print:text-black print:font-bold">C.F. por tranche 1% a.m. + INCC a.a</p>
-              <div className="flex flex-wrap gap-6 items-center justify-between">
+            <div className="rounded-xl border-2 border-red-900 bg-gradient-to-b from-zinc-900 to-black p-5 print:border print:border-black print:bg-white print:rounded-none print:p-2 print:break-inside-avoid">
+              <h3 className="text-red-500 font-bold text-base mb-1 print:text-red-700 print:mb-0.5">RESUMO DA OPERAÇÃO</h3>
+              <p className="text-xs text-zinc-500 mb-4 print:text-black print:font-bold print:mb-2">C.F. por tranche 1% a.m. + INCC a.a</p>
+              <div className="flex flex-wrap gap-6 print:gap-3 items-center justify-between">
                 <div>
                   <p className="text-xs text-zinc-400 mb-1 print:text-zinc-600">Crédito Líquido</p>
                   <p className="text-2xl font-bold text-white print:text-black">R$ {formatarMoeda(liquidoFinal)}</p>
@@ -244,7 +255,7 @@ export default function SimuladorPage() {
             </div>
 
             {/* Print footer */}
-            <div className="hidden print:block mt-10 border-t-2 border-red-700 pt-4 text-right">
+            <div className="hidden print:block mt-4 border-t-2 border-red-700 pt-2 text-right">
               <p className="font-bold text-black">Anderson L. Marini</p>
               <p className="text-sm text-zinc-600">Sócio gerente</p>
               <p className="text-sm text-zinc-600">Unidade Joinville - América | Unidade SP - Jardins</p>
