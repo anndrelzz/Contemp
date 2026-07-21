@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   Table,
   TableBody,
@@ -16,6 +16,7 @@ import { gerarPDF } from "@/utils/pdf";
 
 export function ResumoPanel() {
   const { estoqueDia, bancoFixo, selectedIds } = useStore();
+  const [incluirSD, setIncluirSD] = useState(false);
 
   const allCartas = useMemo(
     () => [...estoqueDia, ...bancoFixo],
@@ -85,9 +86,20 @@ export function ResumoPanel() {
         </div>
       </div>
 
+      {/* Opção SD no PDF */}
+      <label className="flex items-center gap-2 px-1 text-xs text-zinc-400 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={incluirSD}
+          onChange={(e) => setIncluirSD(e.target.checked)}
+          className="accent-red-600 cursor-pointer w-3.5 h-3.5"
+        />
+        Incluir Saldo Devedor (SD) no PDF
+      </label>
+
       {/* Generate PDF button */}
       <button
-        onClick={() => gerarPDF(selecionadas, totais)}
+        onClick={() => gerarPDF(selecionadas, totais, incluirSD)}
         disabled={isEmpty}
         className="
           flex items-center justify-center gap-2 w-full py-2.5 rounded-xl

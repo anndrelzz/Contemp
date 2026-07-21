@@ -93,6 +93,7 @@ const styles = StyleSheet.create({
   colPrazo: { width: "8%" },
   colCF: { width: "9%" },
   colDN: { width: "14%" },
+  colDNFull: { width: "26%" },
   colSD: { width: "12%" },
   headerText: {
     color: "#ffffff",
@@ -135,9 +136,11 @@ interface Totais {
 function OrcamentoPDF({
   cartas,
   totais,
+  incluirSD,
 }: {
   cartas: Carta[];
   totais: Totais;
+  incluirSD: boolean;
 }) {
   const now = new Date().toLocaleDateString("pt-BR");
 
@@ -173,10 +176,12 @@ function OrcamentoPDF({
             <Text style={styles.summaryLabel}>Parcela Total</Text>
             <Text style={styles.summaryValue}>{formatBRL(totais.parcela)}</Text>
           </View>
-          <View style={styles.summaryCard}>
-            <Text style={styles.summaryLabel}>Saldo Devedor Total</Text>
-            <Text style={styles.summaryValue}>{formatBRL(totais.sd)}</Text>
-          </View>
+          {incluirSD && (
+            <View style={styles.summaryCard}>
+              <Text style={styles.summaryLabel}>Saldo Devedor Total</Text>
+              <Text style={styles.summaryValue}>{formatBRL(totais.sd)}</Text>
+            </View>
+          )}
           <View style={styles.summaryCard}>
             <Text style={styles.summaryLabel}>Média CF a.m.</Text>
             <Text style={styles.summaryValue}>{formatPercent(totais.media_cf)}</Text>
@@ -193,8 +198,8 @@ function OrcamentoPDF({
           <Text style={[styles.headerText, styles.colParcela]}>Parcela</Text>
           <Text style={[styles.headerText, styles.colPrazo]}>Prazo</Text>
           <Text style={[styles.headerText, styles.colCF]}>C.F a.m</Text>
-          <Text style={[styles.headerText, styles.colDN]}>DN</Text>
-          <Text style={[styles.headerText, styles.colSD]}>SD</Text>
+          <Text style={[styles.headerText, incluirSD ? styles.colDN : styles.colDNFull]}>DN</Text>
+          {incluirSD && <Text style={[styles.headerText, styles.colSD]}>SD</Text>}
         </View>
         {cartas.map((carta, i) => (
           <View
@@ -220,12 +225,14 @@ function OrcamentoPDF({
             <Text style={[styles.cellText, styles.colCF]}>
               {formatPercent(carta.custo_financeiro)}
             </Text>
-            <Text style={[styles.cellText, styles.colDN]}>
+            <Text style={[styles.cellText, incluirSD ? styles.colDN : styles.colDNFull]}>
               {formatBRL(carta.dn)}
             </Text>
-            <Text style={[styles.cellText, styles.colSD]}>
-              {formatBRL(carta.sd)}
-            </Text>
+            {incluirSD && (
+              <Text style={[styles.cellText, styles.colSD]}>
+                {formatBRL(carta.sd)}
+              </Text>
+            )}
           </View>
         ))}
 
@@ -249,9 +256,9 @@ function OrcamentoPDF({
   );
 }
 
-export async function gerarPDF(cartas: Carta[], totais: Totais) {
+export async function gerarPDF(cartas: Carta[], totais: Totais, incluirSD: boolean) {
   const blob = await pdf(
-    <OrcamentoPDF cartas={cartas} totais={totais} />
+    <OrcamentoPDF cartas={cartas} totais={totais} incluirSD={incluirSD} />
   ).toBlob();
 
   const url = URL.createObjectURL(blob);
