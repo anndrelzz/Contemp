@@ -85,7 +85,7 @@ export default function SimuladorPage() {
             margin: 10mm;
           }
           html {
-            font-size: 62%;
+            font-size: 78%;
           }
         }
       `}</style>
