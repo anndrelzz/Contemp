@@ -27,7 +27,14 @@ export function UploadArea() {
           const sheet = workbook.Sheets[workbook.SheetNames[0]];
           const rows = XLSX.utils.sheet_to_json(sheet) as Record<string, unknown>[];
 
-          const cartas: Carta[] = rows.map((row) => {
+          const cartas: Carta[] = rows.map((rawRow) => {
+            // Excel number formats (e.g. Contábil) applied to header cells can pad
+            // the header text with spaces, so normalize keys before lookup.
+            const row: Record<string, unknown> = {};
+            for (const key in rawRow) {
+              row[key.trim()] = rawRow[key];
+            }
+
             const credito = parseBRLToFloat(row["Crédito"] ?? row["Credito"]);
             const entrada = parseBRLToFloat(row["Entrada"]);
             const parcela = parseBRLToFloat(row["Parcela"]);
