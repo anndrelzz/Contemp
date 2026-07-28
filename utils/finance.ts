@@ -1,17 +1,32 @@
 /**
- * Converts a Brazilian currency string like "R$ 63.692,54" to a float 63692.54
+ * Converts a Brazilian currency string to a float, e.g. "R$ 63.692,54" -> 63692.54.
+ * Also handles accounting-format text: parentheses for negatives "(63.692,54)",
+ * a lone "-" for zero, and thousand-separator spaces (including non-breaking spaces).
  */
 export function parseBRLToFloat(value: unknown): number {
   if (value === null || value === undefined) return 0;
   if (typeof value === "number") return value;
-  const str = String(value);
-  if (!str.trim()) return 0;
-  const cleaned = str
-    .replace(/R\$\s*/g, "")
-    .replace(/\./g, "")
-    .replace(",", ".")
-    .trim();
-  return parseFloat(cleaned) || 0;
+  let str = String(value).trim();
+  if (!str) return 0;
+
+  let negative = false;
+  if (/^\(.*\)$/.test(str)) {
+    negative = true;
+    str = str.slice(1, -1);
+  }
+
+  str = str.replace(/R\$\s*/gi, "").replace(/\s/g, "");
+
+  if (!str || str === "-") return 0;
+
+  if (str.startsWith("-")) {
+    negative = true;
+    str = str.slice(1);
+  }
+
+  const cleaned = str.replace(/\./g, "").replace(",", ".");
+  const result = parseFloat(cleaned) || 0;
+  return negative ? -result : result;
 }
 
 /**
