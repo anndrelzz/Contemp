@@ -1,5 +1,5 @@
 import { Carta } from "@/types";
-import { formatBRL, formatPercent } from "@/utils/finance";
+import { formatBRL, formatPercent, TAXA_TRANSFERENCIA_PCT } from "@/utils/finance";
 import {
   Document,
   Page,
@@ -131,6 +131,7 @@ interface Totais {
   parcela: number;
   sd: number;
   media_cf: number;
+  taxa_transferencia: number;
 }
 
 function OrcamentoPDF({
@@ -185,6 +186,14 @@ function OrcamentoPDF({
           <View style={styles.summaryCard}>
             <Text style={styles.summaryLabel}>Média CF a.m.</Text>
             <Text style={styles.summaryValue}>{formatPercent(totais.media_cf)}</Text>
+          </View>
+          <View style={styles.summaryCard}>
+            <Text style={styles.summaryLabel}>
+              Taxa de Transf. ({formatPercent(TAXA_TRANSFERENCIA_PCT)})
+            </Text>
+            <Text style={styles.summaryValue}>
+              {formatBRL(totais.taxa_transferencia)}
+            </Text>
           </View>
         </View>
 

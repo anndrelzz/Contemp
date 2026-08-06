@@ -73,6 +73,16 @@ export function calcularTaxaMensal(
   return rate * 100;
 }
 
+/** Taxa de transferência: 0,75% sobre o valor total do crédito. */
+export const TAXA_TRANSFERENCIA_PCT = 0.75;
+
+/**
+ * Calculates the transfer fee (0,75%) over a credit amount.
+ */
+export function calcularTaxaTransferencia(credito: number): number {
+  return credito * (TAXA_TRANSFERENCIA_PCT / 100);
+}
+
 /**
  * Formats a number as Brazilian currency: R$ 1.234,56
  */

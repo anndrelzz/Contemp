@@ -10,8 +10,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useStore } from "@/store/useStore";
-import { formatBRL, formatPercent } from "@/utils/finance";
-import { FileText, TrendingUp, Wallet, CreditCard, CheckSquare, Percent } from "lucide-react";
+import {
+  calcularTaxaTransferencia,
+  formatBRL,
+  formatPercent,
+  TAXA_TRANSFERENCIA_PCT,
+} from "@/utils/finance";
+import {
+  FileText,
+  TrendingUp,
+  Wallet,
+  CreditCard,
+  CheckSquare,
+  Percent,
+  ArrowLeftRight,
+} from "lucide-react";
 import { gerarPDF } from "@/utils/pdf";
 
 export function ResumoPanel() {
@@ -42,6 +55,7 @@ export function ResumoPanel() {
     return {
       ...base,
       media_cf: selecionadas.length > 0 ? base.custo_financeiro / selecionadas.length : 0,
+      taxa_transferencia: calcularTaxaTransferencia(base.credito),
     };
   }, [selecionadas]);
 
@@ -70,6 +84,12 @@ export function ResumoPanel() {
             { icon: Wallet, label: "Entrada Total", value: formatBRL(totais.entrada), accent: "text-red-400" },
             { icon: TrendingUp, label: "Parcela Total", value: formatBRL(totais.parcela), accent: "text-zinc-300" },
             { icon: Percent, label: "Média CF a.m.", value: formatPercent(totais.media_cf), accent: "text-amber-400" },
+            {
+              icon: ArrowLeftRight,
+              label: `Taxa de Transferência (${formatPercent(TAXA_TRANSFERENCIA_PCT)})`,
+              value: formatBRL(totais.taxa_transferencia),
+              accent: "text-zinc-300",
+            },
           ].map(({ icon: Icon, label, value, accent }) => (
             <div key={label} className="flex items-center justify-between px-4 py-3">
               <div className="flex items-center gap-2.5">
