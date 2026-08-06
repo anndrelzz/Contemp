@@ -9,6 +9,29 @@ import { Carta } from "@/types";
 import { parseBRLToFloat, calcularTaxaMensal } from "@/utils/finance";
 import { useStore } from "@/store/useStore";
 
+// Removes accents/case so headers like "Crédito Disponível (R$)" or
+// "Vl. entrada (R$)" still match the plain keywords "credito"/"entrada",
+// since spreadsheet exports vary in exact column naming.
+function normalizeHeader(s: string): string {
+  return s
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase();
+}
+
+function findColumn(row: Record<string, unknown>, keyword: string): unknown {
+  const normKeyword = normalizeHeader(keyword);
+  let partialMatch: unknown;
+  for (const key in row) {
+    const normKey = normalizeHeader(key);
+    if (normKey === normKeyword) return row[key];
+    if (partialMatch === undefined && normKey.includes(normKeyword)) {
+      partialMatch = row[key];
+    }
+  }
+  return partialMatch;
+}
+
 export function UploadArea() {
   const setEstoqueDia = useStore((s) => s.setEstoqueDia);
   const clearSelected = useStore((s) => s.clearSelected);
@@ -35,10 +58,10 @@ export function UploadArea() {
               row[key.trim()] = rawRow[key];
             }
 
-            const credito = parseBRLToFloat(row["Crédito"] ?? row["Credito"]);
-            const entrada = parseBRLToFloat(row["Entrada"]);
-            const parcela = parseBRLToFloat(row["Parcela"]);
-            const prazo = Number(row["Prazo"]);
+            const credito = parseBRLToFloat(findColumn(row, "credito"));
+            const entrada = parseBRLToFloat(findColumn(row, "entrada"));
+            const parcela = parseBRLToFloat(findColumn(row, "parcela"));
+            const prazo = Number(findColumn(row, "prazo"));
             const dn = credito - entrada;
             const sd = prazo * parcela;
             const porcentagem_entrada = credito > 0 ? (entrada / credito) * 100 : 0;
@@ -46,7 +69,7 @@ export function UploadArea() {
 
             return {
               id: uuidv4(),
-              grupo: Number(row["Grupo"]),
+              grupo: Number(findColumn(row, "grupo")),
               credito,
               entrada,
               parcela,
