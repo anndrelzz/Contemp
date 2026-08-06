@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Table,
   TableBody,
@@ -11,8 +11,9 @@ import {
 } from "@/components/ui/table";
 import { Carta } from "@/types";
 import { formatBRL, formatPercent } from "@/utils/finance";
+import { cartaKey } from "@/utils/carta";
 import { useStore } from "@/store/useStore";
-import { Star, Trash2, Loader2, DatabaseZap, CalendarDays } from "lucide-react";
+import { Star, Loader2, DatabaseZap, CalendarDays } from "lucide-react";
 import { insertCartaSalva, deleteCartaSalva } from "@/lib/supabase";
 import { v4 as uuidv4 } from "uuid";
 
@@ -22,8 +23,15 @@ interface Props {
 }
 
 export function CartaTable({ cartas, mode }: Props) {
-  const { selectedIds, toggleSelected, addToBancoFixo, removeFromBancoFixo } = useStore();
+  const { selectedIds, toggleSelected, bancoFixo, addToBancoFixo, removeFromBancoFixo } = useStore();
   const [loadingIds, setLoadingIds] = useState<Set<string>>(new Set());
+
+  // id da linha salva no Supabase, indexado pelo conteúdo da carta — permite
+  // marcar como favorita uma carta do estoque do dia que já foi para o banco.
+  const savedIdByKey = useMemo(
+    () => new Map(bancoFixo.map((c) => [cartaKey(c), c.id])),
+    [bancoFixo]
+  );
 
   const setLoading = (id: string, val: boolean) =>
     setLoadingIds((prev) => {
@@ -53,11 +61,13 @@ export function CartaTable({ cartas, mode }: Props) {
     }
   };
 
-  const handleDelete = async (carta: Carta) => {
+  // savedId é o id da linha no Supabase, que difere de carta.id quando a linha
+  // exibida veio da planilha; carta.id continua sendo a identidade visual da linha.
+  const handleDelete = async (carta: Carta, savedId: string) => {
     setLoading(carta.id, true);
     try {
-      await deleteCartaSalva(carta.id);
-      removeFromBancoFixo(carta.id);
+      await deleteCartaSalva(savedId);
+      removeFromBancoFixo(savedId);
     } catch (e) {
       console.error("Erro ao deletar:", e);
     } finally {
@@ -102,6 +112,7 @@ export function CartaTable({ cartas, mode }: Props) {
           {cartas.map((carta, i) => {
             const isSelected = selectedIds.has(carta.id);
             const isLoading = loadingIds.has(carta.id);
+            const savedId = savedIdByKey.get(cartaKey(carta));
             return (
               <TableRow
                 key={carta.id}
@@ -159,21 +170,19 @@ export function CartaTable({ cartas, mode }: Props) {
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   {isLoading ? (
                     <Loader2 size={14} className="animate-spin text-zinc-500" />
-                  ) : mode === "dia" ? (
-                    <button
-                      onClick={() => handleSave(carta)}
-                      title="Salvar no Banco Fixo"
-                      className="p-1 rounded text-zinc-600 hover:text-yellow-400 hover:bg-yellow-400/10 transition-colors"
-                    >
-                      <Star size={14} />
-                    </button>
                   ) : (
                     <button
-                      onClick={() => handleDelete(carta)}
-                      title="Remover do Banco Fixo"
-                      className="p-1 rounded text-zinc-600 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                      onClick={() =>
+                        savedId ? handleDelete(carta, savedId) : handleSave(carta)
+                      }
+                      title={savedId ? "Remover do Banco Fixo" : "Salvar no Banco Fixo"}
+                      className={`p-1 rounded hover:bg-yellow-400/10 transition-colors ${
+                        savedId
+                          ? "text-yellow-400 hover:text-yellow-300"
+                          : "text-zinc-600 hover:text-yellow-400"
+                      }`}
                     >
-                      <Trash2 size={14} />
+                      <Star size={14} fill={savedId ? "currentColor" : "none"} />
                     </button>
                   )}
                 </TableCell>
