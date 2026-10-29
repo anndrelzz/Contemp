@@ -17,6 +17,10 @@ function formatarMoeda(v: number): string {
   return v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+function parseMoeda(v: string): number {
+  return parseFloat(v.replace(/\./g, "").replace(",", "."));
+}
+
 interface Fase {
   numero: number;
   credito: number;
@@ -27,8 +31,9 @@ interface Fase {
   prazo: number;
 }
 
-function criarFase(credito: number, prazo: number, numero: number): Fase {
-  const entrada = credito * 0.5;
+// Sem entrada informada, assume 50% do crédito.
+function criarFase(credito: number, prazo: number, numero: number, entradaInformada?: number): Fase {
+  const entrada = entradaInformada ?? credito * 0.5;
   return {
     numero,
     credito,
@@ -44,33 +49,62 @@ export default function SimuladorPage() {
   const [iniciado, setIniciado] = useState(false);
   const [creditoInicial, setCreditoInicial] = useState("700000");
   const [prazoInicial, setPrazoInicial] = useState("190");
+  const [entradaInicial, setEntradaInicial] = useState("");
   const [fases, setFases] = useState<Fase[]>([]);
   const [novoCredito, setNovoCredito] = useState("");
+  const [novaEntrada, setNovaEntrada] = useState("");
 
   const iniciar = useCallback(() => {
     const credito = parseFloat(creditoInicial);
     const prazo = parseInt(prazoInicial);
     if (isNaN(credito) || isNaN(prazo)) return;
-    setFases([criarFase(credito, prazo, 1)]);
+    const entrada = parseMoeda(entradaInicial);
+    setFases([criarFase(credito, prazo, 1, isNaN(entrada) ? undefined : entrada)]);
     setIniciado(true);
-  }, [creditoInicial, prazoInicial]);
+  }, [creditoInicial, prazoInicial, entradaInicial]);
 
   const adicionarFase = useCallback(() => {
-    const credito = parseFloat(novoCredito.replace(/\./g, "").replace(",", "."));
+    const credito = parseMoeda(novoCredito);
     if (isNaN(credito) || fases.length === 0) return;
-    setFases((prev) => [...prev, criarFase(credito, prev[0].prazo, prev.length + 1)]);
+    const entrada = parseMoeda(novaEntrada);
+    setFases((prev) => [
+      ...prev,
+      criarFase(credito, prev[0].prazo, prev.length + 1, isNaN(entrada) ? undefined : entrada),
+    ]);
     setNovoCredito("");
-  }, [novoCredito, fases]);
+    setNovaEntrada("");
+  }, [novoCredito, novaEntrada, fases]);
 
   const removerUltima = useCallback(() => {
     setFases((prev) => (prev.length > 1 ? prev.slice(0, -1) : prev));
   }, []);
 
   const atualizarLiquido = useCallback((idx: number, valor: string) => {
-    const n = parseFloat(valor.replace(/\./g, "").replace(",", "."));
+    const n = parseMoeda(valor);
     if (isNaN(n)) return;
     setFases((prev) => prev.map((f, i) => (i === idx ? { ...f, liquido: n } : f)));
   }, []);
+
+  const atualizarFaseNumero = useCallback(
+    (idx: number, campo: "credito" | "entrada" | "prazo", valor: string) => {
+      const n = campo === "prazo" ? parseInt(valor) : parseMoeda(valor);
+      if (isNaN(n)) return;
+      setFases((prev) =>
+        prev.map((f, i) => {
+          if (i !== idx) return f;
+          const atualizada = { ...f, [campo]: n };
+          return {
+            ...atualizada,
+            parcela: calcularPMT(atualizada.credito - atualizada.entrada, atualizada.prazo, TAXA_JUROS),
+            taxa: atualizada.credito * PERCENTUAL_TAXA,
+            // Mudar crédito ou entrada muda o valor líquido; prazo não.
+            liquido: campo === "prazo" ? f.liquido : atualizada.credito - atualizada.entrada,
+          };
+        })
+      );
+    },
+    []
+  );
 
   const totalParcela = fases.reduce((acc, f) => acc + f.parcela, 0);
   const totalTaxas = fases.reduce((acc, f) => acc + f.taxa, 0);
@@ -151,6 +185,16 @@ export default function SimuladorPage() {
                 className="w-full bg-black border border-zinc-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-red-600"
               />
             </div>
+            <div className="flex-1">
+              <label className="block text-xs text-zinc-400 mb-2">Entrada 1ª Fase (R$)</label>
+              <input
+                type="text"
+                value={entradaInicial}
+                onChange={(e) => setEntradaInicial(e.target.value)}
+                placeholder="Padrão: 50% do crédito"
+                className="w-full bg-black border border-zinc-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-red-600"
+              />
+            </div>
             <button
               onClick={iniciar}
               className="px-6 py-2.5 bg-red-700 hover:bg-red-600 text-white text-sm font-bold uppercase rounded-lg transition-colors"
@@ -181,9 +225,41 @@ export default function SimuladorPage() {
                     </thead>
                     <tbody>
                       <tr>
-                        <td className="py-3 pr-4 text-white print:border print:border-black print:p-1 print:font-bold print:text-black">R$ {formatarMoeda(fase.credito)}</td>
-                        <td className="py-3 pr-4 text-white print:border print:border-black print:p-1 print:font-bold print:text-black">R$ {formatarMoeda(fase.entrada)}</td>
-                        <td className="py-3 pr-4 text-white print:border print:border-black print:p-1 print:font-bold print:text-black">{fase.prazo}</td>
+                        <td className="py-3 pr-4 print:border print:border-black print:p-1 print:font-bold print:text-black">
+                          <span className="hidden print:inline">R$ {formatarMoeda(fase.credito)}</span>
+                          <div className="print:hidden flex items-center gap-1">
+                            <span className="text-zinc-500 text-xs">R$</span>
+                            <input
+                              key={fase.credito}
+                              type="text"
+                              defaultValue={formatarMoeda(fase.credito)}
+                              onBlur={(e) => atualizarFaseNumero(idx, "credito", e.target.value)}
+                              className="w-24 bg-transparent border-b border-zinc-700 focus:border-red-500 focus:outline-none text-white text-sm py-1"
+                            />
+                          </div>
+                        </td>
+                        <td className="py-3 pr-4 print:border print:border-black print:p-1 print:font-bold print:text-black">
+                          <span className="hidden print:inline">R$ {formatarMoeda(fase.entrada)}</span>
+                          <div className="print:hidden flex items-center gap-1">
+                            <span className="text-zinc-500 text-xs">R$</span>
+                            <input
+                              key={fase.entrada}
+                              type="text"
+                              defaultValue={formatarMoeda(fase.entrada)}
+                              onBlur={(e) => atualizarFaseNumero(idx, "entrada", e.target.value)}
+                              className="w-24 bg-transparent border-b border-zinc-700 focus:border-red-500 focus:outline-none text-white text-sm py-1"
+                            />
+                          </div>
+                        </td>
+                        <td className="py-3 pr-4 print:border print:border-black print:p-1 print:font-bold print:text-black">
+                          <span className="hidden print:inline">{fase.prazo}</span>
+                          <input
+                            type="number"
+                            defaultValue={fase.prazo}
+                            onBlur={(e) => atualizarFaseNumero(idx, "prazo", e.target.value)}
+                            className="print:hidden w-16 bg-transparent border-b border-zinc-700 focus:border-red-500 focus:outline-none text-white text-sm py-1"
+                          />
+                        </td>
                         <td className="py-3 pr-4 text-white print:border print:border-black print:p-1 print:font-bold print:text-black">R$ {formatarMoeda(fase.parcela)}</td>
                         <td className="py-3 pr-4 text-white print:border print:border-black print:p-1 print:font-bold print:text-black">R$ {formatarMoeda(fase.taxa)}</td>
                       </tr>
@@ -193,6 +269,7 @@ export default function SimuladorPage() {
                 <div className="mt-3 print:mt-1">
                   <p className="text-xs text-zinc-500 mb-1.5 print:text-zinc-600 print:mb-0.5">*Valor líquido para utilizar R$</p>
                   <input
+                    key={fase.liquido}
                     type="text"
                     defaultValue={formatarMoeda(fase.liquido)}
                     onBlur={(e) => atualizarLiquido(idx, e.target.value)}
@@ -211,6 +288,16 @@ export default function SimuladorPage() {
                   value={novoCredito}
                   onChange={(e) => setNovoCredito(e.target.value)}
                   placeholder="Ex: 1.400.000"
+                  className="w-full bg-black border border-zinc-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-red-600"
+                />
+              </div>
+              <div className="flex-1">
+                <label className="block text-xs text-zinc-400 mb-2">Entrada (R$)</label>
+                <input
+                  type="text"
+                  value={novaEntrada}
+                  onChange={(e) => setNovaEntrada(e.target.value)}
+                  placeholder="Padrão: 50% do crédito"
                   className="w-full bg-black border border-zinc-700 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-red-600"
                 />
               </div>
